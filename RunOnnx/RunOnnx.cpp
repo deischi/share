@@ -49,73 +49,8 @@ static Ort::Env& getOrtEnv()
 	return s_OrtEnv;
 }
 
-typedef unsigned short float16;
-__forceinline const float16 f16Float32To16(const float& f)
-{
-	// This union gives us an easy way to examine and/or set the individual
-	// bit-fields of an s23e8.
-	union u_u32_s23e8
-	{
-		unsigned int i;
-		float	 f;
-	};
-
-	u_u32_s23e8 x;
-
-	x.f = f;
-
-	int e = (x.i >> 23) & 0x000000ff;
-	const int s = (x.i >> 16) & 0x00008000;
-	int m = x.i & 0x007fffff;
-
-	float16 _h;
-	e = e - 127;
-	if (e == 128) {
-		// infinity or NAN; preserve the leading bits of mantissa
-		// because they tell whether it's a signaling of quiet NAN
-		_h = (float16)(s | (31 << 10) | (m >> 13));
-	}
-	else if (e > 15) {
-		// overflow to infinity
-		_h = (float16)(s | (31 << 10));
-	}
-	else if (e > -15) {
-		// normalized case
-		if ((m & 0x00003fff) == 0x00001000) {
-			// tie, round down to even
-			_h = (float16)(s | ((e + 15) << 10) | (m >> 13));
-		}
-		else {
-			// all non-ties, and tie round up to even
-			_h = (float16)(s | ((e + 15) << 10) | ((m + 0x00001000) >> 13));
-		}
-	}
-	else if (e > -25) {
-		// convert to subnormal
-		m |= 0x00800000; // restore the implied bit
-		e = -14 - e; // shift count
-		m >>= e; // M now in position but 2^13 too big
-		if ((m & 0x00003fff) == 0x00001000) {
-			// tie round down to even
-		}
-		else {
-			// all non-ties, and tie round up to even
-			m += (1 << 12); // m += 0x00001000
-		}
-		m >>= 13;
-		_h = (float16)(s | m);
-	}
-	else {
-		// zero, or underflow
-		_h = (float16)(s);
-	}
-	return _h;
-}
-
-
 int main()
 {
-
 	const OrtApi& ortApi = Ort::GetApi();
 
 	const OrtDmlApi* ortDmlApi = nullptr;
@@ -141,7 +76,7 @@ int main()
 	std::vector<Ort::Float16_t> vecInput(256 * 128 * 256);
 	for (int i = 0; i < 256 * 128 * 256; i++)
 	{
-		vecInput[i] = f16Float32To16(float(i % 256) / 256 );
+		vecInput[i] = 0;
 	}
 
 	Ort::Value inputTensor = Ort::Value::CreateTensor<Ort::Float16_t>(memoryInfo, vecInput.data(), vecInput.size(), dims_input.data(), dims_input.size());
