@@ -1,0 +1,30 @@
+{
+    "resources": 
+    {
+        "input": { "initialValuesDataType": "FLOAT16", "initialValues": { "valueCount": 8388608, "value": 0 } },
+        "conv3d_18": { "initialValuesDataType": "FLOAT16", "initialValues": { "valueCount": 8388608, "value": 0 } }
+    },
+
+    "dispatchables": 
+    {
+        "model": { "type": "onnx", "sourcePath": "Dummy_model.onnx" }
+    },
+
+    "commands": 
+    [
+        {
+            "type": "dispatch",
+            "dispatchable": "model",
+            "bindings": 
+            {
+                "input": "input",
+                "conv3d_18": "conv3d_18"
+            }
+        }
+        ,
+        {
+            "type": "print",
+            "resource": "conv3d_18"
+        }
+    ]
+}
