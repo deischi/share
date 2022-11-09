@@ -88,11 +88,11 @@ int main()
 
 	const Ort::Float16_t* pOutputData = outputValues[0].GetTensorData<Ort::Float16_t>();
 	
-	short minOutput = 255;
-	short maxOutput = 0;
+	uint16_t minOutput = 65535;
+	uint16_t maxOutput = 0;
 	for (int i = 0; i < 256 * 128 * 256; i++)
 	{
-		short r = pOutputData[i];
+		uint16_t r = pOutputData[i];
 		minOutput = std::min(minOutput, r);
 		maxOutput = std::max(maxOutput, r);
 	}
