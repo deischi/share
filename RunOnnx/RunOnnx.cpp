@@ -58,8 +58,8 @@ int main()
 	auto sessionOptions = Ort::SessionOptions{};
 
 
-	Ort::ThrowOnError(ortApi.GetExecutionProviderApi("DML", ORT_API_VERSION, reinterpret_cast<const void**>(&ortDmlApi)));
-	Ort::ThrowOnError(ortDmlApi->SessionOptionsAppendExecutionProvider_DML(sessionOptions, 1));
+	//Ort::ThrowOnError(ortApi.GetExecutionProviderApi("DML", ORT_API_VERSION, reinterpret_cast<const void**>(&ortDmlApi)));
+	//Ort::ThrowOnError(ortDmlApi->SessionOptionsAppendExecutionProvider_DML(sessionOptions, 1));
 
 	sessionOptions.DisableMemPattern();
 	sessionOptions.DisablePerSessionThreads();
