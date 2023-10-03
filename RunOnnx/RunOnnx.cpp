@@ -58,8 +58,8 @@ int main()
 	auto sessionOptions = Ort::SessionOptions{};
 
 
-	//Ort::ThrowOnError(ortApi.GetExecutionProviderApi("DML", ORT_API_VERSION, reinterpret_cast<const void**>(&ortDmlApi)));
-	//Ort::ThrowOnError(ortDmlApi->SessionOptionsAppendExecutionProvider_DML(sessionOptions, 1));
+	Ort::ThrowOnError(ortApi.GetExecutionProviderApi("DML", ORT_API_VERSION, reinterpret_cast<const void**>(&ortDmlApi)));
+	Ort::ThrowOnError(ortDmlApi->SessionOptionsAppendExecutionProvider_DML(sessionOptions, 1));
 
 	sessionOptions.DisableMemPattern();
 	sessionOptions.DisablePerSessionThreads();
@@ -76,7 +76,7 @@ int main()
 	std::vector<Ort::Float16_t> vecInput(256 * 128 * 256);
 	for (int i = 0; i < 256 * 128 * 256; i++)
 	{
-		vecInput[i] = 0;
+		vecInput[i] = Ort::Float16_t{0.0f};
 	}
 
 	Ort::Value inputTensor = Ort::Value::CreateTensor<Ort::Float16_t>(memoryInfo, vecInput.data(), vecInput.size(), dims_input.data(), dims_input.size());
@@ -88,16 +88,16 @@ int main()
 
 	const Ort::Float16_t* pOutputData = outputValues[0].GetTensorData<Ort::Float16_t>();
 	
-	uint16_t minOutput = 65535;
-	uint16_t maxOutput = 0;
+	float minOutput = FLT_MAX;
+	float maxOutput = 0;
 	for (int i = 0; i < 256 * 128 * 256; i++)
 	{
-		uint16_t r = pOutputData[i];
+		float r = pOutputData[i].ToFloat();
 		minOutput = std::min(minOutput, r);
 		maxOutput = std::max(maxOutput, r);
 	}
 
-	printf("min/max: %d/%d\n", minOutput,maxOutput);
+	printf("min/max: %lf/%lf\n", minOutput,maxOutput);
 
 }
 
